@@ -1,0 +1,64 @@
+-- MedScope DAX Measures
+
+Total Prescriptions =
+COUNTROWS(Prescriptions)
+
+Total Patients =
+DISTINCTCOUNT(Prescriptions[patient_id])
+
+Total Doctors =
+DISTINCTCOUNT(Prescriptions[doctor_id])
+
+Total Pharmacies =
+DISTINCTCOUNT(Prescriptions[pharmacy_id])
+
+Total Drug Cost =
+SUM(Prescriptions[total_cost])
+
+Average Prescription Cost =
+AVERAGE(Prescriptions[total_cost])
+
+Insurance Covered =
+SUM(Prescriptions[insurance_covered])
+
+Patient Out Of Pocket =
+SUM(Prescriptions[out_of_pocket])
+
+Insurance Coverage % =
+DIVIDE([Insurance Covered], [Total Drug Cost])
+
+Out Of Pocket % =
+DIVIDE([Patient Out Of Pocket], [Total Drug Cost])
+
+Refilled Prescriptions =
+CALCULATE(
+    [Total Prescriptions],
+    Prescriptions[refill_status] = "Refilled"
+)
+
+Refill Rate =
+DIVIDE([Refilled Prescriptions], [Total Prescriptions])
+
+High Cost Prescriptions =
+CALCULATE(
+    [Total Prescriptions],
+    Prescriptions[total_cost] > 5000
+)
+
+Most Prescribed Drug =
+VAR DrugSummary =
+    SUMMARIZE(
+        Drugs,
+        Drugs[drug_name],
+        "RxCount", [Total Prescriptions]
+    )
+VAR TopDrug =
+    TOPN(1, DrugSummary, [RxCount], DESC)
+RETURN
+    MAXX(TopDrug, Drugs[drug_name])
+
+Average Out Of Pocket =
+AVERAGE(Prescriptions[out_of_pocket])
+
+Total Quantity Dispensed =
+SUM(Prescriptions[quantity])

@@ -1,0 +1,52 @@
+{
+  "name": "MedScope Clinical Dark",
+  "dataColors": [
+    "#0EA5E9",
+    "#22C55E",
+    "#F97316",
+    "#A855F7",
+    "#14B8A6",
+    "#EAB308",
+    "#EF4444",
+    "#64748B"
+  ],
+  "background": "#0F172A",
+  "foreground": "#F8FAFC",
+  "tableAccent": "#0EA5E9",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [
+          {
+            "fontColor": {
+              "solid": {
+                "color": "#F8FAFC"
+              }
+            },
+            "fontSize": 12
+          }
+        ],
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#111827"
+              }
+            },
+            "transparency": 5
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#334155"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

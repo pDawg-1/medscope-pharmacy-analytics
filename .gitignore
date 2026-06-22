@@ -1,0 +1,15 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Excluded project draft files
+chatbot/
+powerbi/qna_chatbot_setup.md
+sql/analytics_queries.sql
+sql/copy_into.sql
+sql/create_tables.sql
+sql/views_for_powerbi.sql

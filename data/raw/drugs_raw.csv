@@ -1,0 +1,37 @@
+drug_id,drug_name,drug_category,manufacturer,primary_diagnosis,standard_unit_cost
+DRG001,Metformin,Diabetes Medication,Generic Pharma,Type 2 Diabetes,2.5
+DRG002,Lisinopril,Blood pressure medication,NorthStar Labs,Hypertension,1.8
+DRG003,Atorvastatin,Cholesterol Medication,Generic Pharma,Hyperlipidemia,2.1
+DRG004,Amlodipine,Blood Pressure Medication,CuraMed,Hypertension,1.65
+DRG005,Albuterol Inhaler,Respiratory Medication,AirWell Therapeutics,Asthma,18.5
+DRG006,Omeprazole,Gastrointestinal Medication,Digestiva Labs,GERD,
+DRG007,Levothyroxine,Endocrine Medication,ThyroLife,Hypothyroidism,1.45
+DRG008,Gabapentin,Neurology/Pain Medication,NeuroGen,Neuropathic Pain,4.2
+DRG009,Ibuprofen,Pain Relief,HealthBasics,Inflammation/Pain,0.35
+DRG010,Amoxicillin,Antibiotic,BioCure,Bacterial Infection,1.25
+DRG011,Azithromycin,Antibiotic,BioCure,Respiratory Infection,2.0
+DRG012,Prednisone,Steroid,CuraMed,Inflammation,0.75
+DRG013,Sertraline,Mental Health Medication,MindWell,Depression/Anxiety,2.4
+DRG014,Losartan,Blood Pressure Medication,NorthStar Labs,Hypertension,2.1
+DRG015,Insulin Glargine,Diabetes Medication,GlucoCare,Diabetes,42.0
+DRG016,Trulicity,Diabetes Medication,GlucoCare,Type 2 Diabetes,265.0
+DRG017,Ozempic,Diabetes Medication,GlucoCare,Type 2 Diabetes,315.0
+DRG018,Eliquis,Anticoagulant,CardioNova,Atrial Fibrillation,48.0
+DRG019,Xarelto,Anticoagulant,CardioNova,Atrial Fibrillation,45.0
+DRG020,Humira,Biologic,Immunex Health,Rheumatoid Arthritis,640.0
+DRG021,Enbrel,Biologic,Immunex Health,Rheumatoid Arthritis,590.0
+DRG022,Trelegy Ellipta,Respiratory Medication,AirWell Therapeutics,COPD,290.0
+DRG023,Symbicort,Respiratory Medication,AirWell Therapeutics,Asthma/COPD,225.0
+DRG024,Januvia,Diabetes Medication,GlucoCare,Type 2 Diabetes,155.0
+DRG025,Farxiga,Diabetes Medication,GlucoCare,Type 2 Diabetes,180.0
+DRG026,Rosuvastatin,Cholesterol Medication,Generic Pharma,Hyperlipidemia,2.55
+DRG027,Hydrochlorothiazide,Blood Pressure Medication,NorthStar Labs,Hypertension,0.85
+DRG028,Pantoprazole,Gastrointestinal Medication,Digestiva Labs,GERD,2.9
+DRG029,Clopidogrel,Antiplatelet,CardioNova,Post-Stent Therapy,3.75
+DRG030,Duloxetine,Mental Health Medication,MindWell,Depression/Chronic Pain,3.6
+DRG031,Cyclobenzaprine,Pain Relief,HealthBasics,Muscle Spasm,1.1
+DRG032,Cefdinir,Antibiotic,BioCure,Bacterial Infection,3.1
+DRG033,Montelukast,Respiratory Medication,AirWell Therapeutics,Asthma/Allergies,1.7
+DRG034,Tamsulosin,Urology Medication,UroCare,BPH,2.35
+DRG035,Apixaban Starter Pack,Anticoagulant,CardioNova,Blood Clot Prevention,52.0
+DRG009,Ibuprofen,Pain Relief,HealthBasics,Inflammation/Pain,0.35
