@@ -18,6 +18,13 @@ SUM(Prescriptions[total_cost])
 Average Prescription Cost =
 AVERAGE(Prescriptions[total_cost])
 
+Weighted Average Prescription Cost =
+DIVIDE(
+    SUM(VW_DRUG_COST_ANALYSIS[TOTAL_DRUG_COST]),
+    SUM(VW_DRUG_COST_ANALYSIS[TOTAL_PRESCRIPTIONS]),
+    0
+)
+
 Insurance Covered =
 SUM(Prescriptions[insurance_covered])
 

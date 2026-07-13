@@ -1,239 +1,148 @@
 -- =====================================================
 -- MedScope Pharmacy Analytics
--- 03_analytics_views.sql
--- Purpose: Create analytics-ready Snowflake views for Power BI
+-- 02_clean_layer.sql
+-- Purpose: Create deduplicated, standardized analytics tables
+--          from the Snowflake RAW layer.
 -- =====================================================
 
--- =========================
--- 1. Prescription Detail View
--- =========================
-
-CREATE OR REPLACE VIEW MEDSCOPE_DB.ANALYTICS.VW_PRESCRIPTION_DETAIL AS
-SELECT
-    pr.prescription_id,
-    pr.prescription_date,
-
-    pt.patient_id,
-    pt.patient_name,
-    pt.age,
-    pt.gender,
-    pt.state AS patient_state,
-    pt.insurance_type,
-    pt.chronic_condition_flag,
-
-    doc.doctor_id,
-    doc.doctor_name,
-    doc.specialty,
-    doc.hospital_name,
-
-    ph.pharmacy_id,
-    ph.pharmacy_name,
-    ph.city AS pharmacy_city,
-    ph.state AS pharmacy_state,
-
-    dr.drug_id,
-    dr.drug_name,
-    dr.drug_category,
-    dr.manufacturer,
-    dr.primary_diagnosis,
-
-    CASE
-        WHEN UPPER(TRIM(pr.diagnosis)) IN ('T2D', 'DIABETES MELLITUS TYPE 2', 'TYPE 2 DIABETES')
-            THEN 'Type 2 Diabetes'
-        WHEN UPPER(TRIM(pr.diagnosis)) = 'RA'
-            THEN 'Rheumatoid Arthritis'
-        ELSE pr.diagnosis
-    END AS standardized_diagnosis,
-
-    pr.quantity,
-    pr.unit_cost,
-    pr.total_cost,
-    pr.insurance_covered,
-    pr.out_of_pocket,
-    pr.refill_status,
-    pr.payment_type,
-
-    ic.claim_id,
-    ic.claim_amount,
-    ic.approved_amount,
-    ic.claim_status,
-    ic.claim_date
-
-FROM MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN pr
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.PATIENTS_CLEAN pt
-    ON TRIM(UPPER(pr.patient_id)) = TRIM(UPPER(pt.patient_id))
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.DOCTORS_CLEAN doc
-    ON TRIM(UPPER(pr.doctor_id)) = TRIM(UPPER(doc.doctor_id))
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.PHARMACIES_CLEAN ph
-    ON TRIM(UPPER(pr.pharmacy_id)) = TRIM(UPPER(ph.pharmacy_id))
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.DRUGS_CLEAN dr
-    ON TRIM(UPPER(pr.drug_id)) = TRIM(UPPER(dr.drug_id))
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.INSURANCE_CLAIMS_CLEAN ic
-    ON TRIM(UPPER(pr.prescription_id)) = TRIM(UPPER(ic.prescription_id));
-
-
--- =========================
--- 2. Executive KPI View
--- =========================
-
-CREATE OR REPLACE VIEW MEDSCOPE_DB.ANALYTICS.VW_EXECUTIVE_KPIS AS
-WITH prescription_metrics AS (
+-- Keep one row per patient and standardize text fields.
+CREATE OR REPLACE TABLE MEDSCOPE_DB.ANALYTICS.PATIENTS_CLEAN AS
+WITH ranked_patients AS (
     SELECT
-        COUNT(DISTINCT prescription_id) AS total_prescriptions,
-        ROUND(SUM(total_cost), 2) AS total_drug_cost,
-        ROUND(AVG(total_cost), 2) AS average_prescription_cost
-    FROM MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY TRIM(patient_id)
+            ORDER BY TRIM(patient_id)
+        ) AS row_num
+    FROM MEDSCOPE_DB.RAW.PATIENTS
+    WHERE patient_id IS NOT NULL
 ),
-
-patient_metrics AS (
-    SELECT
-        COUNT(DISTINCT patient_id) AS total_patients
-    FROM MEDSCOPE_DB.ANALYTICS.PATIENTS_CLEAN
-),
-
-doctor_metrics AS (
-    SELECT
-        COUNT(DISTINCT doctor_id) AS total_doctors
-    FROM MEDSCOPE_DB.ANALYTICS.DOCTORS_CLEAN
-),
-
-most_prescribed AS (
-    SELECT
-        dr.drug_name,
-        COUNT(*) AS prescription_count
-    FROM MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN pr
-    LEFT JOIN MEDSCOPE_DB.ANALYTICS.DRUGS_CLEAN dr
-        ON TRIM(UPPER(pr.drug_id)) = TRIM(UPPER(dr.drug_id))
-    GROUP BY dr.drug_name
-    QUALIFY ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) = 1
+patient_stats AS (
+    SELECT MEDIAN(age) AS median_age
+    FROM ranked_patients
+    WHERE row_num = 1
+      AND age BETWEEN 0 AND 110
 )
-
 SELECT
-    pm.total_prescriptions,
-    pm.total_drug_cost,
-    pm.average_prescription_cost,
-    pt.total_patients,
-    dm.total_doctors,
-    mp.drug_name AS most_prescribed_drug
-FROM prescription_metrics pm
-CROSS JOIN patient_metrics pt
-CROSS JOIN doctor_metrics dm
-CROSS JOIN most_prescribed mp;
+    TRIM(patient_id) AS patient_id,
+    TRIM(patient_name) AS patient_name,
+    TRUNC(COALESCE(age, median_age)) AS age,
+    CASE
+        WHEN UPPER(TRIM(gender)) IN ('F', 'FEMALE') THEN 'Female'
+        WHEN UPPER(TRIM(gender)) IN ('M', 'MALE') THEN 'Male'
+        ELSE INITCAP(TRIM(gender))
+    END AS gender,
+    UPPER(TRIM(state)) AS state,
+    INITCAP(TRIM(insurance_type)) AS insurance_type,
+    INITCAP(TRIM(chronic_condition_flag)) AS chronic_condition_flag
+FROM ranked_patients
+CROSS JOIN patient_stats
+WHERE row_num = 1
+  AND COALESCE(age, median_age) BETWEEN 0 AND 110;
 
 
--- =========================
--- 3. Drug Cost Analysis View
--- =========================
-
-CREATE OR REPLACE VIEW MEDSCOPE_DB.ANALYTICS.VW_DRUG_COST_ANALYSIS AS
+-- Keep one row per doctor and preserve useful records when hospital is missing.
+CREATE OR REPLACE TABLE MEDSCOPE_DB.ANALYTICS.DOCTORS_CLEAN AS
 SELECT
-    dr.drug_id,
-    dr.drug_name,
-    dr.drug_category,
-    dr.manufacturer,
-
-    COUNT(pr.prescription_id) AS total_prescriptions,
-    ROUND(COALESCE(SUM(pr.total_cost), 0), 2) AS total_drug_cost,
-    ROUND(COALESCE(AVG(pr.total_cost), 0), 2) AS average_prescription_cost,
-    ROUND(COALESCE(SUM(pr.insurance_covered), 0), 2) AS total_insurance_covered,
-    ROUND(COALESCE(SUM(pr.out_of_pocket), 0), 2) AS total_out_of_pocket
-
-FROM MEDSCOPE_DB.ANALYTICS.DRUGS_CLEAN dr
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN pr
-    ON TRIM(UPPER(dr.drug_id)) = TRIM(UPPER(pr.drug_id))
-
-GROUP BY
-    dr.drug_id,
-    dr.drug_name,
-    dr.drug_category,
-    dr.manufacturer;
+    TRIM(doctor_id) AS doctor_id,
+    TRIM(doctor_name) AS doctor_name,
+    INITCAP(TRIM(specialty)) AS specialty,
+    COALESCE(NULLIF(TRIM(hospital_name), ''), 'Unknown Hospital') AS hospital_name
+FROM MEDSCOPE_DB.RAW.DOCTORS
+WHERE doctor_id IS NOT NULL
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY TRIM(doctor_id)
+    ORDER BY TRIM(doctor_id)
+) = 1;
 
 
--- =========================
--- 4. Doctor Prescriber Analysis View
--- =========================
-
-CREATE OR REPLACE VIEW MEDSCOPE_DB.ANALYTICS.VW_DOCTOR_PRESCRIBER_ANALYSIS AS
+-- Keep one row per pharmacy and standardize names and locations.
+CREATE OR REPLACE TABLE MEDSCOPE_DB.ANALYTICS.PHARMACIES_CLEAN AS
 SELECT
-    doc.doctor_id,
-    doc.doctor_name,
-    doc.specialty,
-    doc.hospital_name,
-
-    COUNT(pr.prescription_id) AS total_prescriptions,
-    COUNT(DISTINCT pr.patient_id) AS unique_patients_treated,
-
-    ROUND(SUM(pr.total_cost), 2) AS total_prescription_cost,
-    ROUND(AVG(pr.total_cost), 2) AS average_prescription_cost,
-
-    ROUND(SUM(pr.insurance_covered), 2) AS total_insurance_covered,
-    ROUND(SUM(pr.out_of_pocket), 2) AS total_out_of_pocket
-
-FROM MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN pr
-LEFT JOIN MEDSCOPE_DB.ANALYTICS.DOCTORS_CLEAN doc
-    ON TRIM(UPPER(pr.doctor_id)) = TRIM(UPPER(doc.doctor_id))
-
-GROUP BY
-    doc.doctor_id,
-    doc.doctor_name,
-    doc.specialty,
-    doc.hospital_name;
+    TRIM(pharmacy_id) AS pharmacy_id,
+    CASE
+        WHEN UPPER(TRIM(pharmacy_name)) = 'CVS PHARMACY' THEN 'CVS Pharmacy'
+        ELSE INITCAP(TRIM(pharmacy_name))
+    END AS pharmacy_name,
+    INITCAP(TRIM(city)) AS city,
+    UPPER(TRIM(state)) AS state
+FROM MEDSCOPE_DB.RAW.PHARMACIES
+WHERE pharmacy_id IS NOT NULL
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY TRIM(pharmacy_id)
+    ORDER BY TRIM(pharmacy_id)
+) = 1;
 
 
--- =========================
--- 5. Patient Prescription Lookup View
--- =========================
-
-CREATE OR REPLACE VIEW MEDSCOPE_DB.ANALYTICS.VW_PATIENT_PRESCRIPTION_LOOKUP AS
+-- Keep one row per drug and preserve currency precision.
+CREATE OR REPLACE TABLE MEDSCOPE_DB.ANALYTICS.DRUGS_CLEAN AS
+WITH ranked_drugs AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY TRIM(drug_id)
+            ORDER BY TRIM(drug_id)
+        ) AS row_num
+    FROM MEDSCOPE_DB.RAW.DRUGS
+    WHERE drug_id IS NOT NULL
+),
+drug_stats AS (
+    SELECT MEDIAN(standard_unit_cost) AS median_unit_cost
+    FROM ranked_drugs
+    WHERE row_num = 1
+      AND standard_unit_cost IS NOT NULL
+)
 SELECT
-    patient_id,
-    patient_name,
-    age,
-    gender,
-    patient_state,
-    insurance_type,
-    chronic_condition_flag,
+    TRIM(drug_id) AS drug_id,
+    TRIM(drug_name) AS drug_name,
+    INITCAP(TRIM(drug_category)) AS drug_category,
+    TRIM(manufacturer) AS manufacturer,
+    TRIM(primary_diagnosis) AS primary_diagnosis,
+    COALESCE(standard_unit_cost, median_unit_cost) AS standard_unit_cost
+FROM ranked_drugs
+CROSS JOIN drug_stats
+WHERE row_num = 1;
 
-    prescription_id,
+
+-- Keep one row per prescription and standardize categorical fields.
+CREATE OR REPLACE TABLE MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN AS
+SELECT
+    TRIM(prescription_id) AS prescription_id,
+    TRIM(patient_id) AS patient_id,
+    TRIM(doctor_id) AS doctor_id,
+    TRIM(drug_id) AS drug_id,
+    TRIM(pharmacy_id) AS pharmacy_id,
+    TRIM(diagnosis) AS diagnosis,
     prescription_date,
-
-    drug_name,
-    drug_category,
-    manufacturer,
-
-    doctor_name,
-    specialty,
-    hospital_name,
-
-    pharmacy_name,
-    pharmacy_city,
-    pharmacy_state,
-
-    standardized_diagnosis,
     quantity,
     unit_cost,
     total_cost,
-    insurance_covered,
-    out_of_pocket,
-    refill_status,
-    payment_type,
-    claim_status
+    COALESCE(insurance_covered, 0) AS insurance_covered,
+    COALESCE(out_of_pocket, total_cost - COALESCE(insurance_covered, 0)) AS out_of_pocket,
+    INITCAP(TRIM(refill_status)) AS refill_status,
+    INITCAP(TRIM(payment_type)) AS payment_type
+FROM MEDSCOPE_DB.RAW.PRESCRIPTIONS
+WHERE prescription_id IS NOT NULL
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY TRIM(prescription_id)
+    ORDER BY TRIM(prescription_id)
+) = 1;
 
-FROM MEDSCOPE_DB.ANALYTICS.VW_PRESCRIPTION_DETAIL;
 
-
--- =========================
--- 6. Monthly Prescription Trend View
--- =========================
-
-CREATE OR REPLACE VIEW MEDSCOPE_DB.ANALYTICS.VW_MONTHLY_PRESCRIPTION_TREND AS
+-- Keep one row per claim and standardize its status.
+CREATE OR REPLACE TABLE MEDSCOPE_DB.ANALYTICS.INSURANCE_CLAIMS_CLEAN AS
 SELECT
-    TO_CHAR(prescription_date, 'YYYY-MM') AS year_month,
-    COUNT(DISTINCT prescription_id) AS total_prescriptions,
-    ROUND(SUM(total_cost), 2) AS total_drug_cost,
-    ROUND(AVG(total_cost), 2) AS average_prescription_cost,
-    ROUND(SUM(insurance_covered), 2) AS total_insurance_covered,
-    ROUND(SUM(out_of_pocket), 2) AS total_out_of_pocket
-FROM MEDSCOPE_DB.ANALYTICS.PRESCRIPTIONS_CLEAN
-GROUP BY TO_CHAR(prescription_date, 'YYYY-MM')
-ORDER BY year_month;
+    TRIM(claim_id) AS claim_id,
+    TRIM(prescription_id) AS prescription_id,
+    TRIM(patient_id) AS patient_id,
+    covered_amount,
+    claim_amount,
+    approved_amount,
+    INITCAP(TRIM(claim_status)) AS claim_status,
+    claim_date
+FROM MEDSCOPE_DB.RAW.INSURANCE_CLAIMS
+WHERE claim_id IS NOT NULL
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY TRIM(claim_id)
+    ORDER BY TRIM(claim_id)
+) = 1;

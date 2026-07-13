@@ -1,4 +1,4 @@
-# MedScope – Prescription Cost & Pharmacy Analytics Dashboard
+# MedScope - Prescription Cost & Pharmacy Analytics Dashboard
 
 MedScope is an end-to-end healthcare analytics project built to analyze prescription volume, drug spending, insurance coverage, patient out-of-pocket cost, and doctor prescribing patterns. The project uses Snowflake as the data warehouse, SQL for cleaning and analytics views, and Power BI for dashboard reporting.
 
@@ -20,14 +20,21 @@ Healthcare and pharmacy teams need a clear way to monitor prescription costs, id
 * Power BI
 * Data Modeling
 * DAX
-* Excel dataset
+* Python and pandas
+* Synthetic Excel/CSV dataset
+
+## Data Source and Privacy
+
+MedScope uses a synthetic pharmacy dataset supplied with the project. All patient, doctor, prescription, pharmacy, drug, and insurance-claim records are fictional; the project does not contain real protected health information.
+
+The original data-generation process is not part of this repository. The included files are treated as source-system extracts so the project can demonstrate cleaning, validation, warehouse modeling, reporting, and conversational analytics without exposing sensitive healthcare information.
 
 ## Data Pipeline
 
 The project follows this flow:
 
 ```text
-Dataset → Snowflake RAW tables → Snowflake CLEAN tables → Analytics Views → Power BI Dashboard
+Synthetic CSV files -> Snowflake RAW tables -> Snowflake CLEAN tables -> Analytics views -> Power BI and Flask chatbot
 ```
 
 ## Snowflake Design
@@ -45,6 +52,16 @@ Creates deduplicated and validated tables from the raw data to prevent duplicate
 ### ANALYTICS Layer
 
 Creates reporting-ready views that are connected directly to Power BI.
+
+## Build Order
+
+1. Run `sql/01_create_tables.sql` in Snowflake.
+2. Upload the six files from `data/raw/` to `@MEDSCOPE_DB.RAW.MEDSCOPE_CSV_STAGE`.
+3. Run `sql/01_load_raw_data.sql` to load the staged files.
+4. Run `sql/02_clean_layer.sql` to create the deduplicated clean tables.
+5. Run `sql/03_analytics_views.sql` to create reporting views.
+6. Run `sql/04_validation_queries.sql` and `python/data_quality_checks.py`.
+7. Refresh the Power BI model and verify its slicers and totals.
 
 ## Dashboard Pages
 
@@ -64,10 +81,15 @@ Allows users to filter by pharmacy, drug, and patient to view detailed prescript
 
 Shows top prescribing doctors, prescriptions by specialty, average prescription cost by doctor, unique patients treated, and doctor-level prescription summaries.
 
+### 5. Natural Language Q&A
+
+Demonstrates Power BI Q&A for supported business questions. Microsoft has announced retirement of this visual in December 2026; the Flask chatbot in `chatbot/` is the project's longer-term conversational interface.
+
 ## Key Features
 
 * Built a Snowflake warehouse with raw, clean, and analytics layers.
-* Removed duplicate records using SQL clean tables.
+* Removed duplicate records and standardized business fields using SQL clean tables.
+* Added Python cleaning and data-quality checks for keys, nulls, relationships, and cost logic.
 * Standardized diagnosis values for cleaner reporting.
 * Created Snowflake views for executive KPIs, drug cost analysis, patient lookup, doctor analysis, and monthly prescription trends.
 * Connected Snowflake analytics views to Power BI.
@@ -79,7 +101,7 @@ Shows top prescribing doctors, prescriptions by specialty, average prescription 
 ```text
 data/              Dataset files
 sql/               Snowflake SQL scripts
-dashboard files/   Power BI dashboard file and exported PDF
+Dashboard files/   Power BI dashboard file and exported PDF
 docs/              Notes and documentation
 python/            Helper scripts if needed
 ```
@@ -88,6 +110,7 @@ python/            Helper scripts if needed
 
 ```text
 01_create_tables.sql       Creates database, schemas, and raw tables
+01_load_raw_data.sql       Loads staged CSV files into raw tables
 02_clean_layer.sql         Creates clean deduplicated tables
 03_analytics_views.sql     Creates Power BI reporting views
 04_validation_queries.sql  Validates row counts, joins, and KPIs
@@ -95,4 +118,4 @@ python/            Helper scripts if needed
 
 ## Final Outcome
 
-The final dashboard provides a complete pharmacy analytics reporting solution that helps users understand prescription cost drivers, patient payment burden, insurance coverage, provider activity, and monthly prescription trends.
+The final dashboard provides a pharmacy analytics reporting solution that helps users understand prescription cost drivers, patient payment burden, insurance coverage, provider activity, and monthly prescription trends. Because the data is synthetic, the results demonstrate the technical solution and are not intended for real clinical decision-making.

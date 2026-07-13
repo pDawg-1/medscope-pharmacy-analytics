@@ -1,7 +1,7 @@
 # MedScope Power BI Build Steps
 
 Final Power BI file name:
-`MedScope_Dashboard.pbix`
+`MedScope_Snowflake_Dashboard_final.pbix`
 
 ## Page 1: Executive Overview
 
@@ -14,19 +14,35 @@ Visuals:
 - Card: Total Patients
 - Card: Total Doctors
 - Card: Most Prescribed Drug
-- Line chart: Monthly Prescription Trend
-- Bar chart: Total Cost by Drug Category
-- Slicers: Year-Month, Drug Category, Pharmacy
+- Column chart: Monthly Prescription Trend
+  - Axis: `VW_MONTHLY_PRESCRIPTION_TREND[YEAR_MONTH]`
+  - Value: `VW_MONTHLY_PRESCRIPTION_TREND[TOTAL_PRESCRIPTIONS]`
+  - Sort by `YEAR_MONTH` ascending
+- Column chart: Total Drug Cost by Drug Category
+  - Axis: `VW_DRUG_COST_ANALYSIS[DRUG_CATEGORY]`
+  - Value: `VW_DRUG_COST_ANALYSIS[TOTAL_DRUG_COST]`
 
 ## Page 2: Prescription & Drug Cost Analysis
 
 Visuals:
 - Bar chart: Total Cost by Medicine
-- Bar chart: Total Cost by Drug Category
-- Line chart: Monthly Prescription Trend
-- Table: Top 10 Expensive Drugs
+- Column chart: Weighted Average Prescription Cost by Drug Category
+  - Axis: `VW_DRUG_COST_ANALYSIS[DRUG_CATEGORY]`
+  - Value: `[Weighted Average Prescription Cost]`
+- Table: Top Expensive Prescriptions
 - Stacked bar: Insurance Covered vs Patient Out-of-Pocket
-- Slicers: Drug Category, Manufacturer, Diagnosis
+- Slicer: Drug Category
+
+Use this measure instead of summing pre-aggregated drug averages:
+
+```DAX
+Weighted Average Prescription Cost =
+DIVIDE(
+    SUM(VW_DRUG_COST_ANALYSIS[TOTAL_DRUG_COST]),
+    SUM(VW_DRUG_COST_ANALYSIS[TOTAL_PRESCRIPTIONS]),
+    0
+)
+```
 
 ## Page 3: Patient/Customer View
 
@@ -52,6 +68,8 @@ Table visual columns:
 - Insurance Covered
 - Out-of-Pocket
 
+Set `AGE` to **Don't summarize** in the table visual.
+
 Demo:
 Select Pharmacy = CVS Pharmacy and Drug = Metformin.
 You should see Dr. Sarah Lee, John Smith, Type 2 Diabetes, $75 total cost, $55 insurance, $20 out-of-pocket.
@@ -67,17 +85,12 @@ Visuals:
 
 ## Page 5: Q&A Chatbot / Natural Language Insights
 
-Use Power BI Q&A visual:
-Suggested questions:
-- Which drug has the highest total cost?
-- Which doctor prescribed the most medicines?
-- Which pharmacy has the highest total cost?
-- Why was Metformin prescribed?
-- What is the average out-of-pocket cost by pharmacy?
-- Show prescription count by drug category.
+Use the Power BI Q&A visual for the current demo. Power BI reports that this visual will retire in December 2026; use the Flask chatbot as the replacement path.
 
-Also add a smart narrative visual summarizing:
-- Total prescription volume
-- Highest-cost drug/category
-- Highest-volume pharmacy
-- Out-of-pocket trend
+Suggested questions:
+- What is the total drug cost?
+- What is the total prescriptions?
+- What is the average prescription cost?
+- What is the most prescribed drug?
+- Show doctor name and total prescriptions.
+- What is the total insurance covered?
