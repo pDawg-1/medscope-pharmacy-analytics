@@ -2,7 +2,7 @@
 
 ## Current-State Business Process
 
-Before MedScope, an analyst would need to combine separate extracts manually.
+The starting point for this project was a set of separate CSV extracts. Without a shared warehouse model, an analyst would repeat the following work for each request.
 
 ```mermaid
 flowchart LR
@@ -14,12 +14,12 @@ flowchart LR
     F --> G[Repeat work for the next request]
 ```
 
-Main pain points:
+Problems with that approach:
 
 - Repeated manual preparation.
 - Risk of inconsistent joins and calculations.
 - Slow response to stakeholder questions.
-- No shared definition of key metrics.
+- No single definition of KPIs such as total prescription cost.
 - Limited audit trail for cleaning and validation.
 
 ## Future-State MedScope Process
@@ -37,9 +37,9 @@ flowchart LR
     H --> I
 ```
 
-## Data Refresh Sequence
+## Proposed Refresh Sequence
 
-1. Confirm the six expected source files.
+1. Confirm that all six expected source files are present.
 2. Upload the files to the Snowflake internal stage.
 3. Run the RAW load script.
 4. Run the clean-layer transformations.
@@ -47,7 +47,7 @@ flowchart LR
 6. Execute SQL and Python validation checks.
 7. Investigate critical validation failures.
 8. Refresh the Power BI model only after validation approval.
-9. Perform KPI reconciliation and smoke-test key filters.
+9. Reconcile the headline KPIs and quickly test the main filters before sharing the report.
 
 ## Exception Flow
 
@@ -63,6 +63,8 @@ flowchart TD
 
 ## Responsibility Summary
 
+This is a lightweight RACI-style view for the project. Exact job titles may change in a real organization.
+
 | Activity | Business owner | Data/BI owner | Reviewer |
 | --- | --- | --- | --- |
 | Define KPIs and business rules | Accountable | Consulted | Consulted |
@@ -71,4 +73,3 @@ flowchart TD
 | Build dashboard visuals | Consulted | Responsible | Consulted |
 | Conduct UAT | Accountable | Supports | Responsible |
 | Approve release/refresh | Accountable | Informed | Consulted |
-

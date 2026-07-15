@@ -106,9 +106,9 @@ docs/              Notes and documentation
 python/            Helper scripts if needed
 ```
 
-## Business Systems Analysis Artifacts
+## Project Analysis and Delivery Notes
 
-The `docs/` folder contains the analysis and delivery artifacts used to connect stakeholder needs to the implemented solution:
+The `docs/` folder shows how I moved from the pharmacy reporting problem to requirements, data rules, dashboard behavior, and UAT:
 
 - [Business Requirements Document](docs/business_requirements_document.md)
 - [Functional Requirements](docs/functional_requirements.md)
@@ -119,7 +119,7 @@ The `docs/` folder contains the analysis and delivery artifacts used to connect 
 - [User Acceptance Test Plan](docs/uat_test_plan.md)
 - [Problem Statement](docs/problem_statement.md)
 
-The UAT cases are provided as an execution-ready plan. Their status remains `Not executed` until the corresponding tests are performed and evidence is captured.
+The UAT cases are ready to run, but they are intentionally marked `Not executed` until results and screenshots are collected.
 
 ## SQL Scripts
 

@@ -1,8 +1,10 @@
 # MedScope User Stories and Acceptance Criteria
 
+The stories below describe the main tasks demonstrated in the Power BI report and the controlled chatbot. They are deliberately tied to real pages and views in this repository.
+
 ## US-01 Executive overview
 
-**As an** executive sponsor, **I want** a summary of prescription activity and cost **so that** I can understand overall performance quickly.
+**As an** executive sponsor, **I want** a one-page summary of prescription activity and cost **so that** I can understand the overall position without reviewing detail tables.
 
 Acceptance criteria:
 
@@ -23,7 +25,7 @@ Acceptance criteria:
 
 ## US-03 Patient prescription lookup
 
-**As a** pharmacy analyst, **I want** to filter prescription details by pharmacy, drug, patient, and diagnosis **so that** I can investigate a business question without joining files manually.
+**As a** pharmacy analyst, **I want** to filter prescription details by pharmacy, drug, patient, and diagnosis **so that** I can answer questions such as "Who prescribed Metformin at CVS, and why?" without joining files manually.
 
 Acceptance criteria:
 
@@ -53,7 +55,7 @@ Acceptance criteria:
 
 ## US-06 Data quality
 
-**As a** BI analyst, **I want** automated data-quality checks **so that** I can identify unreliable data before refreshing the dashboard.
+**As a** BI analyst, **I want** repeatable data-quality checks **so that** I can find key, relationship, and cost problems before refreshing the dashboard.
 
 Acceptance criteria:
 
@@ -64,7 +66,7 @@ Acceptance criteria:
 
 ## US-07 Controlled analytics chatbot
 
-**As a** non-technical business user, **I want** to ask supported business questions in plain language **so that** I can retrieve common analytics without writing SQL.
+**As a** non-technical business user, **I want** to ask a supported business question in plain language **so that** I can retrieve a common KPI without writing SQL.
 
 Acceptance criteria:
 
@@ -82,4 +84,3 @@ Acceptance criteria:
 - Documentation identifies the dataset as synthetic.
 - No real PHI is intentionally included.
 - Credentials and local environment files are excluded from source control.
-

@@ -2,15 +2,15 @@
 
 ## 1. Document Purpose
 
-This Business Requirements Document defines the business problem, scope, stakeholders, requirements, assumptions, and success criteria for MedScope, a pharmacy prescription-cost and utilization analytics solution.
+This document captures what MedScope needs to solve, who will use it, and how the finished dashboard will be accepted. It is based on the questions answered by the current Snowflake and Power BI implementation.
 
 ## 2. Business Problem
 
-Pharmacy and healthcare operations teams receive prescription information across patients, doctors, pharmacies, drugs, and insurance claims. Without a consolidated reporting layer, users must combine separate source extracts to answer basic cost, utilization, coverage, and prescribing questions. This creates slow analysis, inconsistent calculations, and limited visibility into patient financial burden.
+The source data arrives as separate patient, doctor, pharmacy, drug, prescription, and insurance-claim extracts. Answering a question such as "How much did insurance cover for Metformin prescriptions at CVS?" requires several files to be cleaned and joined. Doing this by hand for every request takes time and makes it easy for two analysts to calculate the same KPI differently.
 
 ## 3. Business Objective
 
-Create a trusted analytics solution that allows authorized business users to:
+MedScope brings those files into one reporting flow so business users can:
 
 - Monitor prescription volume and cost.
 - Identify major drug-cost drivers.
@@ -24,7 +24,7 @@ Create a trusted analytics solution that allows authorized business users to:
 
 | Stakeholder | Need | MedScope capability |
 | --- | --- | --- |
-| Executive sponsor | High-level cost and utilization visibility | Executive Overview page |
+| Executive sponsor | A quick view of volume, cost, patients, doctors, and the leading drug | Executive Overview page |
 | Pharmacy operations manager | Pharmacy and drug activity analysis | Drug Cost and Patient Lookup pages |
 | Finance/claims analyst | Insurance and out-of-pocket reconciliation | Coverage measures and validation rules |
 | Clinical operations analyst | Provider, specialty, drug, and diagnosis patterns | Doctor Prescriber Analysis page |
@@ -54,14 +54,14 @@ Create a trusted analytics solution that allows authorized business users to:
 - General-purpose generative AI questions.
 - Production identity and access management.
 
-## 6. Assumptions and Constraints
+## 6. Working Assumptions and Constraints
 
 - All supplied records are synthetic.
 - Source extracts use the documented column structures.
 - Snowflake credentials and warehouse access are provided through environment variables.
 - Power BI users have permission to access the reporting model.
 - Dashboard freshness depends on completion of the batch load and report refresh.
-- The chatbot supports only documented question patterns.
+- The chatbot is rule-based and supports only the documented question patterns; it is not a general AI assistant.
 
 ## 7. High-Level Business Requirements
 
@@ -106,9 +106,9 @@ Create a trusted analytics solution that allows authorized business users to:
 | NFR-07 | Auditability | Requirement, source, transformation, report, and UAT mappings are documented. |
 | NFR-08 | Performance target | Standard dashboard interactions should respond within five seconds under demonstration-scale data. |
 
-## 10. Success Criteria
+## 10. What Success Looks Like
 
-- All mandatory requirements pass UAT.
+- All Must-priority requirements pass UAT.
 - Key and relationship checks report no critical defects.
 - Dashboard totals match approved Snowflake validation queries.
 - Users can complete the executive, cost, provider, and patient lookup scenarios.
@@ -123,5 +123,4 @@ Create a trusted analytics solution that allows authorized business users to:
 | Broken entity relationships | Missing report details | Run foreign-key and join-completeness checks. |
 | Incorrect financial totals | Untrusted dashboard | Validate cost and payment equations with a tolerance. |
 | Credential exposure | Security incident | Use ignored `.env` files and environment variables. |
-| Chatbot misunderstood as unrestricted AI | Incorrect stakeholder expectations | Document supported question patterns and approved SQL mapping. |
-
+| Chatbot is mistaken for an unrestricted AI tool | Users expect questions it cannot answer | Show the supported questions and explain that each one maps to approved SQL. |

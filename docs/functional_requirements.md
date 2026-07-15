@@ -1,5 +1,7 @@
 # MedScope Functional Requirements
 
+These requirements were written from the current MedScope workflow and dashboard pages. The implementation column shows where each requirement is handled, which makes the list useful during reviews and change discussions.
+
 ## Data Ingestion and Preparation
 
 | ID | Functional requirement | Priority | Implementation |
@@ -39,7 +41,6 @@
 | FR-23 | The chatbot shall escape recognized drug values before query construction. | Must | `safe_sql_text()` |
 | FR-24 | The chatbot shall return a supported-question message for unmatched questions. | Should | Chatbot fallback response |
 
-## Requirement Status
+## How to Read the Implementation Column
 
-`Implemented` means that a repository artifact exists. It does not by itself prove production readiness; acceptance is recorded through the UAT cases and evidence described in `traceability_matrix.md` and `uat_test_plan.md`.
-
+An implementation reference means the related code or report artifact exists. It does not mean the requirement has passed UAT. Test status and evidence belong in `uat_test_plan.md`.

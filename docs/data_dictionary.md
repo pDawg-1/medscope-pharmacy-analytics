@@ -1,5 +1,7 @@
 # MedScope Data Dictionary
 
+This dictionary documents the fields used by the MedScope warehouse and report. The rules come from the SQL and pandas cleaning steps rather than from a generic healthcare model.
+
 ## Entity Relationships
 
 ```text
@@ -17,7 +19,7 @@ PATIENTS 1 ---- * PRESCRIPTIONS * ---- 1 DOCTORS
 | Field | Type | Description | Rule |
 | --- | --- | --- | --- |
 | patient_id | String | Unique synthetic patient identifier | Primary key; required |
-| patient_name | String | Synthetic patient name | Trim whitespace |
+| patient_name | String | Synthetic patient name used in the lookup page | Trim whitespace |
 | age | Number | Patient age | Must be 0-110; missing values use median |
 | gender | String | Standardized gender value | Map `F/M` to `Female/Male` |
 | state | String | Patient state | Uppercase |
@@ -62,7 +64,7 @@ PATIENTS 1 ---- * PRESCRIPTIONS * ---- 1 DOCTORS
 | doctor_id | String | Prescribing doctor | Foreign key to doctors |
 | drug_id | String | Prescribed drug | Foreign key to drugs |
 | pharmacy_id | String | Dispensing pharmacy | Foreign key to pharmacies |
-| diagnosis | String | Prescription diagnosis/reason | Standardized in detail view |
+| diagnosis | String | Recorded reason associated with the prescription | Standardized for known variants in the detail view |
 | prescription_date | Date | Prescription date | Used for monthly reporting |
 | quantity | Number | Units prescribed | Used in total-cost validation |
 | unit_cost | Decimal | Cost per unit | Currency value |
@@ -98,4 +100,3 @@ PATIENTS 1 ---- * PRESCRIPTIONS * ---- 1 DOCTORS
 | total_out_of_pocket | Out of pocket | Sum of patient-paid amount |
 | unique_patients_treated | Patient ID by doctor | Distinct patient count per doctor |
 | year_month | Prescription date | `YYYY-MM` reporting period |
-

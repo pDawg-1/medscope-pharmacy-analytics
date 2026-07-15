@@ -1,6 +1,6 @@
 # MedScope Requirements Traceability Matrix
 
-This matrix connects business needs to implementation and acceptance evidence.
+This matrix is the cross-check used when a requirement changes. It shows which code, view, report page, and UAT case need to be reviewed together.
 
 | Business ID | Functional IDs | Implementation artifact | Dashboard/output | UAT cases |
 | --- | --- | --- | --- | --- |
@@ -15,7 +15,7 @@ This matrix connects business needs to implementation and acceptance evidence.
 | BR-09 | FR-22 to FR-24 | `chatbot/app.py` | Analytics chatbot | UAT-10, UAT-11 |
 | BR-10 | NFR-04, NFR-05 | Synthetic-data statement and `.gitignore` | Privacy-safe repository | UAT-12 |
 
-## Change-Control Rule
+## When a Requirement Changes
 
 When a requirement changes:
 
@@ -23,4 +23,3 @@ When a requirement changes:
 2. Identify affected SQL, Python, DAX, Power BI, and chatbot artifacts.
 3. Update the mapped UAT case.
 4. Re-run validation and record the result before approval.
-

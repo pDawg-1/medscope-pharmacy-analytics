@@ -2,9 +2,9 @@
 
 ## Objective
 
-Confirm that MedScope satisfies its mandatory business requirements and produces reliable dashboard results for the synthetic demonstration dataset.
+Confirm that the main MedScope workflows work with the synthetic demonstration data and that the numbers shown in Power BI agree with Snowflake.
 
-## Entry Criteria
+## Before Testing Starts
 
 - RAW files are available and use the expected structure.
 - Snowflake load and transformation scripts complete without critical errors.
@@ -12,7 +12,7 @@ Confirm that MedScope satisfies its mandatory business requirements and produces
 - Data-quality checks have been executed.
 - Power BI model refresh completes.
 
-## Exit Criteria
+## Conditions for Sign-Off
 
 - All Must-priority UAT cases pass.
 - No open critical data-quality defect remains.
@@ -29,7 +29,7 @@ Confirm that MedScope satisfies its mandatory business requirements and produces
 | UAT-04 | Review drug cost ranking | Sort drugs by total cost on page 2 | Ordering and totals match `VW_DRUG_COST_ANALYSIS` | BR-03 | Not executed |
 | UAT-05 | Reconcile payment amounts | Compare insurance and out-of-pocket totals | Components reconcile with total cost within tolerance | BR-04, RULE-06 | Not executed |
 | UAT-06 | Identify top prescriber | Compare page 4 ranking with doctor view | Same doctor and prescription count are returned | BR-05 | Not executed |
-| UAT-07 | CVS and Metformin lookup | Select CVS Pharmacy and Metformin | Only matching detail records appear with provider and diagnosis | BR-06 | Not executed |
+| UAT-07 | CVS and Metformin lookup | On the Patient/Customer page, select CVS Pharmacy and Metformin | Only matching records appear, including patient, provider, diagnosis, and payment details | BR-06 | Not executed |
 | UAT-08 | Validate monthly trend | Review chronological monthly chart and SQL results | Months are ordered and values reconcile | BR-07 | Not executed |
 | UAT-09 | Detect financial mismatch | Introduce or identify a cost difference over $0.05 in a test copy | Validation reports the mismatch | BR-08, FR-20 | Not executed |
 | UAT-10 | Ask supported chatbot question | Ask `What is the total drug cost?` | Chatbot returns the Snowflake KPI value | BR-09, FR-22 | Not executed |
@@ -45,11 +45,10 @@ Confirm that MedScope satisfies its mandatory business requirements and produces
 | Medium | Affects one workflow with a workaround | One slicer does not filter a secondary visual |
 | Low | Cosmetic or documentation issue | Label spacing or minor wording |
 
-## Evidence to Capture
+## Evidence to Keep
 
 - Validation query result screenshots or exported results.
 - Power BI page and filter-state screenshots.
 - Expected-versus-actual KPI values.
-- Test date, tester, environment, and status.
+- Test date, tester name, environment, and final status.
 - Defect identifier and retest result where applicable.
-
