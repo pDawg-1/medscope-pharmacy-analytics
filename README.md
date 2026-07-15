@@ -31,10 +31,10 @@ The original data-generation process is not part of this repository. The include
 
 ## Data Pipeline
 
-The project follows this flow:
+The implemented project follows this flow:
 
 ```text
-Synthetic CSV files -> Snowflake RAW tables -> Snowflake CLEAN tables -> Analytics views -> Power BI and Flask chatbot
+Synthetic CSV files -> Snowflake RAW tables -> Clean tables in the ANALYTICS schema -> Analytics views -> Power BI and Flask chatbot
 ```
 
 ## Snowflake Design
@@ -45,9 +45,9 @@ The Snowflake layer is organized into three main layers:
 
 Stores the original uploaded pharmacy, patient, doctor, drug, prescription, and insurance claim data.
 
-### CLEAN Layer
+### Clean Tables
 
-Creates deduplicated and validated tables from the raw data to prevent duplicate loads and improve reporting reliability.
+Creates deduplicated and standardized tables in the `ANALYTICS` schema from the raw data to prevent duplicate loads and improve reporting reliability.
 
 ### ANALYTICS Layer
 
@@ -105,6 +105,21 @@ Dashboard files/   Power BI dashboard file and exported PDF
 docs/              Notes and documentation
 python/            Helper scripts if needed
 ```
+
+## Business Systems Analysis Artifacts
+
+The `docs/` folder contains the analysis and delivery artifacts used to connect stakeholder needs to the implemented solution:
+
+- [Business Requirements Document](docs/business_requirements_document.md)
+- [Functional Requirements](docs/functional_requirements.md)
+- [User Stories and Acceptance Criteria](docs/user_stories.md)
+- [Current-State and Future-State Process Flows](docs/process_flows.md)
+- [Data Dictionary](docs/data_dictionary.md)
+- [Requirements Traceability Matrix](docs/traceability_matrix.md)
+- [User Acceptance Test Plan](docs/uat_test_plan.md)
+- [Problem Statement](docs/problem_statement.md)
+
+The UAT cases are provided as an execution-ready plan. Their status remains `Not executed` until the corresponding tests are performed and evidence is captured.
 
 ## SQL Scripts
 

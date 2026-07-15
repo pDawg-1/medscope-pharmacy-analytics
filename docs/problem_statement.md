@@ -2,7 +2,7 @@
 
 Healthcare and pharmacy organizations handle large prescription datasets across patients, doctors, pharmacies, drugs, and insurance claims. Business teams need a reliable way to monitor medication cost, prescribing behavior, pharmacy performance, insurance coverage, and patient out-of-pocket burden.
 
-MedScope solves this by creating an end-to-end analytics pipeline using S3, Snowflake, SQL, Python, and Power BI.
+MedScope solves this by creating an end-to-end analytics pipeline using staged CSV extracts, Snowflake, SQL, Python, and Power BI.
 
 ## Core Business Questions
 
